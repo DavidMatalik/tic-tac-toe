@@ -2,17 +2,43 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <title>Calculator</title>
-    <link rel="stylesheet" type="text/css" href="reset.css" />
-    <link rel="stylesheet" type="text/css" href="style.css" />
+    <meta charset='utf-8'>
+    <title>Tic Tac Toe</title>
+    <link rel='stylesheet' type='text/css' href='reset.css' />
+    <link rel='stylesheet' type='text/css' href='style.css' />
 </head>
 
 <body>
 
-   
+    <p id='yourTurn'></p>
+    
+    <div id='namesForm'>
+        <h1>Who wants to play a round Tic Tac Toe?</h1>
+        <p id='error'>Enter 2 names to start the Game</p>
+        <label for='player1'>Player 1:</label><input name='player1' id='player1' type='text'><br>
+        <label for='player2'>Player 2:</label><input name='player2' id='player2' type='text'><br>
+        <button id='start'>Start Game</button>
+    </div> 
 
-    <script src="script.js"></script>
+   <div id='gameContainer'>
+       <div class='item item-0'></div>
+       <div class='item item-1'></div>
+       <div class='item item-2'></div>
+       <div class='item item-3'></div>
+       <div class='item item-4'></div>
+       <div class='item item-5'></div>
+       <div class='item item-6'></div>
+       <div class='item item-7'></div>
+       <div class='item item-8'></div>
+   </div>
+
+   <p id='hint'>This spot is already taken. Choose a free spot.</p>
+
+   <p id='winner'></p>
+
+   <button id='reset'>Reset</button>
+
+    <script src='script.js'></script>
     
 </body>
 

@@ -1,94 +1,168 @@
-/*You’re going to store the gameboard as an array inside of a Gameboard object, 
-so start there! Your players are also going to be stored in objects… 
-and you’re probably going to want an object to control the flow of the game itself.
-
-Your main goal here is to have as little global code as possible. 
-Try tucking everything away inside of a module or factory. 
-Rule of thumb: if you only ever need ONE of something 
-(gameBoard, displayController), use a module. If you need multiples of something 
-(players!), create them with factories.*/
-
-//1. Understand the problem: There should be a gameboard created.
-//2 Players should be created. The 2 players should be able to set
-//their marks one after the other on to the gameboard. When there is 
-//a mark set on a place it should be impossible to set another mark on it. 
-//If there are 3 in a row the game should stop and the winner should
-//be displayed. It should be possible to restart the game.
-
-//2. Make a Plan
-            //Create a module named gameboard
-            //Create inside gameboard an array named fieldsArray
-            //Initialize fieldsArray with 9 times null
-            //Create a method setMark with parameters mark and index
-            //Let setMark put mark at the specified index
-            //Create a factory function playerFactory
-            //Create inside playerFactory a name and a mark property
-            //Create the objects player1 and player2 with the help of playerFactory
-            //(Later on player1 and player2 should be created during runtime, where real
-            //Players can choose the names of their players)
-            //Create a module displayController
-
-            //Create inside displayController the function cacheDom
-//Fill the function above with logic
-            //Create inside displayController the function bindEvents
-//Fill the function above with logic
-            //Create inside displayController the function startGame
-//Fill the function above with logic
-            //Create inside displayController the function createPlayers
-//Fill the function above with logic
-            //Create inside displayController the function checkIfWin
-//Fill the function above with logic
-            //Create inside displayController the function endGame
-//Fill the function above with logic
-            //Create inside displayController the function resetGame
-//Fill the function above with logic
-            
-
-//3. Divide the plan further and code
-
-const gameboard = (function (){
-    let fieldsArray = [null, null, null, null, null, null, null, null, null];
-    function setMark (mark, index) {
-        fieldsArray[index] = mark;
-    }
-    return {setMark};
-})();
-
 const playerFactory = (name, mark) => {
     return {name, mark}
 };
 
-const player1 = playerFactory('David', 'circle');
-const player2 = playerFactory('Frey', 'cross');
+Array.prototype.allSameValues = function () {
+    if (this[0] === "") { return false; }
+    for (let i = 1; i < this.length; i++) {
+      if (this[i] !== this[0]) { return false; }
+    } 
+    return true;
+}
 
-const displayController = (function(){
-    function cacheDom () {
-        
+
+const gameboard = (function (){
+
+    let fieldsArray = ['', '', '', '', '', '', '', '', ''];
+
+    function saveMarkInArray (mark, index) {
+        fieldsArray[index] = mark;
+    }
+    
+    function getMarks (){
+        return fieldsArray;
     }
 
-    function bindEvents () {
+    function checkIfWin () {
+        
+        let win = false;
 
+        const winningCombos = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ];
+        const markersArray = gameboard.getMarks();
+
+        winningCombos.forEach(arr => {
+            const a = markersArray[arr[0]];
+            const b = markersArray[arr[1]];
+            const c = markersArray[arr[2]];
+            if ([a, b, c].allSameValues()) {
+                win = true;
+                return;
+            } 
+          });
+
+          return win;
+    }
+
+    function resetArray () {
+        fieldsArray = ['', '', '', '', '', '', '', '', ''];
+    }
+
+    return {saveMarkInArray, getMarks, checkIfWin, resetArray};
+})();
+
+
+const displayController = (function(){
+
+    const player1 = playerFactory('Player1', 'O');
+    const player2 = playerFactory('Player2', 'X');
+    let activePlayer = [player1, player2];
+
+    //cacheDom
+    let body = document.querySelector('body');
+    let fieldsOfGame = body.querySelectorAll('.item');
+    let freeSpotHint = body.querySelector('#hint');
+    let winnerMessage = body.querySelector('#winner');
+    let resetButton = body.querySelector('#reset');
+    let namesForm = body.querySelector('#namesForm');
+    let startButton = body.querySelector('#start');
+    let namePlayer1 = body.querySelector('#player1');
+    let namePlayer2 = body.querySelector('#player2');
+    let yourTurn = body.querySelector('#yourTurn');
+    let errorText = body.querySelector('#error');
+    
+    const bindListeners = (function () {
+        const start = () => startButton.addEventListener('click', validateNames);
+
+        const fields = () => fieldsOfGame.forEach (function(field) {
+        field.addEventListener('click', validateField);
+        });
+
+        const reset = () => resetButton.addEventListener('click', resetGame);
+
+        return{start, fields, reset}
+    })();
+
+    bindListeners.start();
+    bindListeners.reset();
+
+    function removeFieldListeners () {
+        fieldsOfGame.forEach (function(field) {
+            field.removeEventListener('click', validateField);
+            });
+    }
+
+    function render () {
+        let fieldArray = gameboard.getMarks();
+        for(let i=0; i<=8; i++){      
+            fieldsOfGame[i].innerHTML = fieldArray[i];        
+        }
     }
 
     function startGame () {
-        
+        player1.name = namePlayer1.value;
+        player2.name = namePlayer2.value;
+        bindListeners.fields();
+        namesForm.style.display = 'none';
+        yourTurn.textContent = `${activePlayer[0].name}: your turn!`
     }
 
-    function createPlayers () {
-        
+    function placeMarker (event) {
+        let index = event.target.className[10];
+        gameboard.saveMarkInArray(activePlayer[0].mark, index);
+        render();
+        if(gameboard.checkIfWin()){
+            displayWinner(activePlayer[0].name);
+            removeFieldListeners();
+        } else {
+            bindListeners.fields();
+            changeActivePlayer();
+        }
     }
-   
-    function checkIfWin () {
 
+    function changeActivePlayer () {
+        activePlayer.reverse();
+        yourTurn.textContent = `${activePlayer[0].name}: your turn!`
     }
 
-    function endGame () {
-        
+    function displayWinner (name) {
+        yourTurn.textContent = '';
+        winnerMessage.innerHTML = `3 in a row! ${name} has won!`;
+        resetButton.style.display = 'block';
     }
 
     function resetGame () {
-        
+        toogleError('none');
+        winnerMessage.innerHTML = ``;
+        resetButton.style.display = 'none';
+        namesForm.style.display = 'block';
+        gameboard.resetArray();
+        render();
     }
 
+    function validateNames () {
+        (namePlayer1.value && namePlayer2.value) ? startGame() : toogleError('block');
+    }
+
+    function validateField (event) {
+        if (event.target.innerHTML === '') {
+            freeSpotHint.style.display = 'none';
+            placeMarker(event)
+        } else {
+            freeSpotHint.style.display = 'block';
+        }
+    }
+
+    function toogleError (displayValue) {
+        errorText.style.display = displayValue;
+    }
 })();
 

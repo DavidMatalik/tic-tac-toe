@@ -1,0 +1,66 @@
+h1, #yourTurn{
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+#yourTurn{
+    margin: auto;
+    width: 800px;
+    text-align: center;
+}
+
+#namesForm{
+    margin: auto;
+    margin-top: 20px;
+    width: 800px;
+    text-align: center;
+}
+
+#error{
+    color: red;
+    display: none;
+}
+
+#gameContainer{
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
+    width: 600px;
+    height: 600px;
+    margin: auto;
+    margin-top: 50px;
+}
+
+.item{
+    border: solid 1px black;
+    font-size: 200px;
+    line-height: 1;
+    text-align: center;
+    font-family: Ari
+    al, Helvetica, sans-serif;
+}
+#hint, #winner{
+    margin: auto;
+    margin-top: 20px;
+    width: 800px;
+    font-size: 40px;
+    font-weight: bold;
+    text-align: center;
+}
+
+#hint{
+    display: none;
+    color: red;
+}
+
+#start, #reset{
+    width: 150px;
+    margin-top: 20px;
+    font-size: 25px;
+}
+
+#reset{
+    display:none;
+    margin: auto;
+}
