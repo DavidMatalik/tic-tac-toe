@@ -1,4 +1,15 @@
-# tic-tac-toe
+# Learning Goals
 
-Learning goal: use design patterns like the Module pattern or the Factory Pattern. Avoid global code.
+Use Module pattern 
 
+Use Factory Pattern
+
+Avoid global code
+
+# Todos:
+
+Implement computer player
+
+Implement AI for computer Player
+
+Style it nicer
