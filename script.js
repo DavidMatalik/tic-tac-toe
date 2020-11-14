@@ -1,32 +1,25 @@
-const playerFactory = (name, mark) => {
-    return {name, mark}
-};
-
+//credit to mindovermiles262
 Array.prototype.allSameValues = function () {
     if (this[0] === "") { return false; }
     for (let i = 1; i < this.length; i++) {
-      if (this[i] !== this[0]) { return false; }
-    } 
+        if (this[i] !== this[0]) { return false; }
+    }
     return true;
 }
 
+const playerFactory = (name, mark) => {
+    return { name, mark }
+};
 
-const gameboard = (function (){
+const gameboard = (() => {
+    let _fieldsArray = ['', '', '', '', '', '', '', '', ''];
 
-    let fieldsArray = ['', '', '', '', '', '', '', '', ''];
-
-    function saveMarkInArray (mark, index) {
-        fieldsArray[index] = mark;
-    }
-    
-    function getMarks (){
-        return fieldsArray;
+    function saveMarkInArray(mark, index) {
+        _fieldsArray[index] = mark;
     }
 
-    function checkIfWin () {
-        
+    function checkIfWin() {
         let win = false;
-
         const winningCombos = [
             [0, 1, 2],
             [3, 4, 5],
@@ -37,7 +30,7 @@ const gameboard = (function (){
             [0, 4, 8],
             [2, 4, 6]
         ];
-        const markersArray = gameboard.getMarks();
+        const markersArray = gameboard.getMarks;
 
         winningCombos.forEach(arr => {
             const a = markersArray[arr[0]];
@@ -46,123 +39,197 @@ const gameboard = (function (){
             if ([a, b, c].allSameValues()) {
                 win = true;
                 return;
-            } 
-          });
-
-          return win;
+            }
+        });
+        return win;
     }
 
-    function resetArray () {
-        fieldsArray = ['', '', '', '', '', '', '', '', ''];
+    function checkIfFull() {
+        return gameboard.getMarks.every((field) => field);
     }
 
-    return {saveMarkInArray, getMarks, checkIfWin, resetArray};
+    function resetArray() {
+        _fieldsArray = ['', '', '', '', '', '', '', '', ''];
+    }
+
+    return { 
+        get getMarks (){
+            return _fieldsArray;
+        },
+        saveMarkInArray, checkIfWin, checkIfFull, resetArray 
+    }
 })();
 
+const doDomStuff = (() => {
 
-const displayController = (function(){
+    //store DOM elements
+    let body = document.querySelector('body');
+    let fieldsOfGame = body.querySelectorAll('.item');
+    fieldsOfGame = _convertToArray(fieldsOfGame);
+    let freeSpotHint = body.querySelector('#hint');
+    let winnerMessage = body.querySelector('#winner');
+    let drawMessage = body.querySelector('#draw');
+    let resetButton = body.querySelector('#reset');
+    let namesForm = body.querySelector('#namesForm');
+    let startButton = body.querySelector('#start');
+    let _namePlayer1 = body.querySelector('#player1');
+    let _namePlayer2 = body.querySelector('#player2');
+    let yourTurn = body.querySelector('#yourTurn');
+    let errorText = body.querySelector('#error');
+
+    //bind and remove Listeners
+    const _addStartListener = () => startButton.addEventListener('click', _validateNamesInput)
+    const _addResetListener = () => resetButton.addEventListener('click', gameLogic.resetGame);
+    const _addOneFieldListener = (oneField) => oneField.addEventListener('click', _validateField);
+    const _addFieldsListener = () => fieldsOfGame.map(_addOneFieldListener)
+    const _removeOneFieldListener = (oneField) => oneField.removeEventListener('click', _validateField);
+    const _removeFieldsListener = () => fieldsOfGame.map(_removeOneFieldListener);
+
+    function activateButtons() {
+        _addStartListener();
+        _addResetListener();
+    }
+
+    function startGame(callPlayer) {
+        _addFieldsListener();
+        _hideElement(namesForm);
+        _displayYourTurn(callPlayer);
+        _addFieldsListener();
+    }
+
+    function updateBoardDisplay() {
+        let fieldArray = gameboard.getMarks;
+        fieldArray.forEach(_updateOneField);
+    }
+
+    function enableNextMove(callPlayer) {
+        _addFieldsListener();
+        _displayYourTurn(callPlayer);
+    }
+
+    function putGameOver() {
+        _removeFieldsListener();
+        _emptyYourTurn();
+        _showElement(resetButton);
+    }
+
+    function resetDisplay() {
+        updateBoardDisplay();
+        _hideElement(winnerMessage);
+        _hideElement(drawMessage);
+        _hideElement(resetButton);
+        _showElement(namesForm);
+    }
+
+    function displayWinner(name) {
+        winnerMessage.style.display = 'block';
+        winnerMessage.innerHTML = `3 in a row! ${name} has won!`;
+    }
+
+    function displayDraw() {
+        drawMessage.style.display = 'block';
+        drawMessage.innerHTML = 'It is a draw...';
+    }
+
+    function _validateNamesInput () {
+        if (_namePlayer1.value && _namePlayer2.value) {
+            _hideElement(errorText);
+            gameLogic.startGame();
+        } else {
+            _showElement(errorText);
+        }
+    }
+
+    function _updateOneField(currentField, index) {
+        fieldsOfGame[index].innerHTML = currentField;
+    }
+
+    function _validateField(event) {
+        if (event.target.innerHTML === '') {
+            _hideElement(freeSpotHint);
+            _placeMarkerPreparation(event);
+        } else {
+            _showElement(freeSpotHint);
+        }
+    }
+
+    function _placeMarkerPreparation(e) {
+        let indexClickedField = e.target.className[10];
+        gameLogic.placeMarker(indexClickedField);
+    }
+
+    function _displayYourTurn(playerWhosTurn) {
+        yourTurn.textContent = `${playerWhosTurn}: your turn!`;
+    }
+
+    function _emptyYourTurn() {
+        yourTurn.textContent = '';
+    }
+
+    function _showElement(element) {
+        element.style.display = 'block';
+    }
+
+    function _hideElement(element) {
+        element.style.display = 'none';
+    }
+
+    function _convertToArray(listToConvert) {
+        return Array.from(listToConvert);
+    }
+
+    return {
+        get getNamePlayer1() {
+            return _namePlayer1.value;
+        },
+        get getNamePlayer2() {
+            return _namePlayer2.value;
+        }, activateButtons, startGame, updateBoardDisplay,
+        enableNextMove, displayWinner, displayDraw,
+        putGameOver, resetDisplay
+    }
+})();
+
+const gameLogic = (() => {
 
     const player1 = playerFactory('Player1', 'O');
     const player2 = playerFactory('Player2', 'X');
     let activePlayer = [player1, player2];
 
-    //cacheDom
-    let body = document.querySelector('body');
-    let fieldsOfGame = body.querySelectorAll('.item');
-    let freeSpotHint = body.querySelector('#hint');
-    let winnerMessage = body.querySelector('#winner');
-    let resetButton = body.querySelector('#reset');
-    let namesForm = body.querySelector('#namesForm');
-    let startButton = body.querySelector('#start');
-    let namePlayer1 = body.querySelector('#player1');
-    let namePlayer2 = body.querySelector('#player2');
-    let yourTurn = body.querySelector('#yourTurn');
-    let errorText = body.querySelector('#error');
-    
-    const bindListeners = (function () {
-        const start = () => startButton.addEventListener('click', validateNames);
-
-        const fields = () => fieldsOfGame.forEach (function(field) {
-        field.addEventListener('click', validateField);
-        });
-
-        const reset = () => resetButton.addEventListener('click', resetGame);
-
-        return{start, fields, reset}
-    })();
-
-    bindListeners.start();
-    bindListeners.reset();
-
-    function removeFieldListeners () {
-        fieldsOfGame.forEach (function(field) {
-            field.removeEventListener('click', validateField);
-            });
+    function startGame() {
+        player1.name = doDomStuff.getNamePlayer1;
+        player2.name = doDomStuff.getNamePlayer2;
+        doDomStuff.startGame(activePlayer[0].name);
     }
 
-    function render () {
-        let fieldArray = gameboard.getMarks();
-        for(let i=0; i<=8; i++){      
-            fieldsOfGame[i].innerHTML = fieldArray[i];        
-        }
+    function placeMarker(indexOfField) {
+        gameboard.saveMarkInArray(activePlayer[0].mark, indexOfField);
+        doDomStuff.updateBoardDisplay();
+        _decideNextGameAction();
     }
 
-    function startGame () {
-        player1.name = namePlayer1.value;
-        player2.name = namePlayer2.value;
-        bindListeners.fields();
-        namesForm.style.display = 'none';
-        yourTurn.textContent = `${activePlayer[0].name}: your turn!`
-    }
-
-    function placeMarker (event) {
-        let index = event.target.className[10];
-        gameboard.saveMarkInArray(activePlayer[0].mark, index);
-        render();
-        if(gameboard.checkIfWin()){
-            displayWinner(activePlayer[0].name);
-            removeFieldListeners();
-        } else {
-            bindListeners.fields();
-            changeActivePlayer();
-        }
-    }
-
-    function changeActivePlayer () {
-        activePlayer.reverse();
-        yourTurn.textContent = `${activePlayer[0].name}: your turn!`
-    }
-
-    function displayWinner (name) {
-        yourTurn.textContent = '';
-        winnerMessage.innerHTML = `3 in a row! ${name} has won!`;
-        resetButton.style.display = 'block';
-    }
-
-    function resetGame () {
-        toogleError('none');
-        winnerMessage.innerHTML = ``;
-        resetButton.style.display = 'none';
-        namesForm.style.display = 'block';
+    function resetGame() {
         gameboard.resetArray();
-        render();
+        doDomStuff.resetDisplay();
     }
 
-    function validateNames () {
-        (namePlayer1.value && namePlayer2.value) ? startGame() : toogleError('block');
-    }
-
-    function validateField (event) {
-        if (event.target.innerHTML === '') {
-            freeSpotHint.style.display = 'none';
-            placeMarker(event)
+    function _decideNextGameAction() {
+        if (gameboard.checkIfWin()) {
+            doDomStuff.putGameOver();
+            doDomStuff.displayWinner(activePlayer[0].name);
+        } else if (gameboard.checkIfFull()) {
+            doDomStuff.putGameOver();
+            doDomStuff.displayDraw();
         } else {
-            freeSpotHint.style.display = 'block';
+            _changeActivePlayer();
         }
     }
 
-    function toogleError (displayValue) {
-        errorText.style.display = displayValue;
+    function _changeActivePlayer() {
+        activePlayer.reverse();
+        doDomStuff.enableNextMove(activePlayer[0].name);
     }
+    return {startGame, resetGame, placeMarker}
 })();
 
+doDomStuff.activateButtons();

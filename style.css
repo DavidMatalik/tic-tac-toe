@@ -40,7 +40,7 @@ h1, #yourTurn{
     font-family: Ari
     al, Helvetica, sans-serif;
 }
-#hint, #winner{
+#hint, #winner, #draw{
     margin: auto;
     margin-top: 20px;
     width: 800px;
