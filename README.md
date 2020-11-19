@@ -10,6 +10,8 @@ Done: Follow Single Responsibility principle
 
 # Todos:
 
+Follow dependency injection or instructions of Sandi Metz book (as Alex73 supposed from Odin discord)
+
 Implement computer player
 
 Implement AI for computer Player
