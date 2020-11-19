@@ -8,9 +8,9 @@ Done: Avoid global code
 
 Done: Follow Single Responsibility principle
 
-# Todos:
+Done to some extent: implement dependency injection
 
-Follow dependency injection or instructions of Sandi Metz book (as Alex73 supposed from Odin discord)
+# Todos:
 
 Implement computer player
 
