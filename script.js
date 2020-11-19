@@ -30,7 +30,7 @@ const gameboard = (() => {
             [0, 4, 8],
             [2, 4, 6]
         ];
-        const markersArray = gameboard.getMarks;
+        const markersArray = this.getMarks;
 
         winningCombos.forEach(arr => {
             const a = markersArray[arr[0]];
@@ -45,7 +45,7 @@ const gameboard = (() => {
     }
 
     function checkIfFull() {
-        return gameboard.getMarks.every((field) => field);
+        return this.getMarks.every((field) => field);
     }
 
     function resetArray() {
@@ -60,7 +60,7 @@ const gameboard = (() => {
     }
 })();
 
-const doDomStuff = (() => {
+const doDomStuff = ((board) => {
 
     //store DOM elements
     let body = document.querySelector('body');
@@ -98,7 +98,7 @@ const doDomStuff = (() => {
     }
 
     function updateBoardDisplay() {
-        let fieldArray = gameboard.getMarks;
+        let fieldArray = board.getMarks;
         fieldArray.forEach(_updateOneField);
     }
 
@@ -188,38 +188,38 @@ const doDomStuff = (() => {
         enableNextMove, displayWinner, displayDraw,
         putGameOver, resetDisplay
     }
-})();
+})(gameboard);
 
-const gameLogic = (() => {
+const gameLogic = ((userInterface, board) => {
 
     const player1 = playerFactory('Player1', 'O');
     const player2 = playerFactory('Player2', 'X');
     let activePlayer = [player1, player2];
 
     function startGame() {
-        player1.name = doDomStuff.getNamePlayer1;
-        player2.name = doDomStuff.getNamePlayer2;
-        doDomStuff.startGame(activePlayer[0].name);
+        player1.name = userInterface.getNamePlayer1;
+        player2.name = userInterface.getNamePlayer2;
+        userInterface.startGame(activePlayer[0].name);
     }
 
     function placeMarker(indexOfField) {
-        gameboard.saveMarkInArray(activePlayer[0].mark, indexOfField);
-        doDomStuff.updateBoardDisplay();
+        board.saveMarkInArray(activePlayer[0].mark, indexOfField);
+        userInterface.updateBoardDisplay();
         _decideNextGameAction();
     }
 
     function resetGame() {
-        gameboard.resetArray();
-        doDomStuff.resetDisplay();
+        board.resetArray();
+        userInterface.resetDisplay();
     }
 
     function _decideNextGameAction() {
-        if (gameboard.checkIfWin()) {
-            doDomStuff.putGameOver();
-            doDomStuff.displayWinner(activePlayer[0].name);
-        } else if (gameboard.checkIfFull()) {
-            doDomStuff.putGameOver();
-            doDomStuff.displayDraw();
+        if (board.checkIfWin()) {
+            userInterface.putGameOver();
+            userInterface.displayWinner(activePlayer[0].name);
+        } else if (board.checkIfFull()) {
+            userInterface.putGameOver();
+            userInterface.displayDraw();
         } else {
             _changeActivePlayer();
         }
@@ -227,9 +227,9 @@ const gameLogic = (() => {
 
     function _changeActivePlayer() {
         activePlayer.reverse();
-        doDomStuff.enableNextMove(activePlayer[0].name);
+        userInterface.enableNextMove(activePlayer[0].name);
     }
     return {startGame, resetGame, placeMarker}
-})();
+})(doDomStuff, gameboard);
 
 doDomStuff.activateButtons();
