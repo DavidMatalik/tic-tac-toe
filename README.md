@@ -1,10 +1,12 @@
 # Learning Goals
 
-Use Module pattern 
+Done: Use Module pattern 
 
-Use Factory Pattern
+Done: Use Factory Pattern
 
-Avoid global code
+Done: Avoid global code
+
+Done: Follow Single Responsibility principle
 
 # Todos:
 
